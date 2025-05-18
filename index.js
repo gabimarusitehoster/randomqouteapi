@@ -36,7 +36,7 @@ app.get('/quote', async (req, res) => {
 
 // Prevent Render sleep
 setInterval(() => {
-  axios.get('https://your-render-url.onrender.com').catch(() => {});
+  axios.get('https://randomqouteapi-1.onrender.com').catch(() => {});
 }, 300000); // every 5 mins
 
 app.listen(PORT, () => {
