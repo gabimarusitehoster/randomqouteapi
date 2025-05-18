@@ -9,7 +9,48 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('Quote Scraper API by Gabimaru is live!');
+  res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse= - Get a Bible scripture</p>');
+});
+
+app.get('/bibleverse', async (req, res) => {
+  const query = req.query.verse;
+  if (!query) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Please provide a verse, e.g., /bibleverse?verse=John:3+16',
+      creator: 'Gabimaru'
+    });
+  }
+
+  try {
+    const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(query)}&version=KJV`;
+    const { data } = await axios.get(url);
+    const $ = cheerio.load(data);
+
+    const verseText = $('.passage-text .text').text().trim().replace(/\s+/g, ' ');
+
+    if (!verseText) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Verse not found or invalid reference',
+        creator: 'Gabimaru'
+      });
+    }
+
+    res.json({
+      verse: query.replace(/\+/g, ' '),
+      text: verseText,
+      version: 'KJV',
+      status: 'success',
+      creator: 'Gabimaru'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch Bible verse',
+      creator: 'Gabimaru'
+    });
+  }
 });
 
 app.get('/quote', async (req, res) => {
