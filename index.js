@@ -9,7 +9,42 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse= - Get a Bible scripture</p>');
+  res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse=John 3:16 - Get a Bible scripture</p><p>/iplookup?ip=8.8.8.8 - Get ip info through an ip address');
+});
+
+app.get('/iplookup', async (req, res) => {
+  const ip = req.query.ip;
+  if (!ip) {
+    return res.status(400).json({ status: 'error', message: 'IP address is required', creator: 'Gabimaru' });
+  }
+
+  try {
+    const { data } = await axios.get(`https://ip-api.com/json/${ip}`);
+
+    if (data.status === 'fail') {
+      return res.status(404).json({ status: 'error', message: 'Invalid IP address', creator: 'Gabimaru' });
+    }
+
+    res.json({
+      ip: data.query,
+      country: data.country,
+      region: data.regionName,
+      city: data.city,
+      isp: data.isp,
+      timezone: data.timezone,
+      lat: data.lat,
+      lon: data.lon,
+      status: 'success',
+      creator: 'Gabimaru'
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch IP info',
+      creator: 'Gabimaru'
+    });
+  }
 });
 
 app.get('/bibleverse', async (req, res) => {
