@@ -12,6 +12,41 @@ app.get('/', (req, res) => {
   res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse=John 3:16 - Get a Bible scripture</p><p>/iplookup?ip=8.8.8.8 - Get ip info through an ip address');
 });
 
+app.get('/chatbot', async (req, res) => {
+  const message = req.query.message;
+  if (!message) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Please provide a message query parameter.'
+    });
+  }
+
+  try {
+    const response = await axios.get('https://www.simsimi.com/getRealtimeReq', {
+      params: {
+        lc: 'en',
+        ft: '1',
+        normalProb: '0.0',
+        reqText: message
+      }
+    });
+
+    const botReply = response.data.sentenceResp || 'No reply received.';
+
+    res.json({
+      status: 'success',
+      reply: botReply,
+      creator: 'Gabimaru'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch chatbot response',
+      creator: 'Gabimaru'
+    });
+  }
+});
+
 app.get('/waifu', async (req, res) => {
   try {
     constsync (req, res) => {
