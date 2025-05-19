@@ -12,6 +12,44 @@ app.get('/', (req, res) => {
   res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse=John 3:16 - Get a Bible scripture</p><p>/iplookup?ip=8.8.8.8 - Get ip info through an ip address');
 });
 
+app.get('/ytsearch', async (req, res) => {
+  const query = req.query.q;
+  if (!query) return res.status(400).json({ status: 'error', message: 'Query is required', creator: 'Gabimaru' });
+
+  try {
+    const { data } = await axios.get(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`);
+    const $ = cheerio.load(data);
+    const script = $('script').filter((i, el) => $(el).html().includes('var ytInitialData')).first().html();
+    const jsonData = JSON.parse(script.match(/var ytInitialData = (.*?);\s*<\/script>/s)?.[1] || '{}');
+
+    const results = [];
+    const contents = jsonData?.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
+
+    for (const item of contents) {
+      const video = item.videoRenderer;
+      if (!video) continue;
+
+      results.push({
+        title: video.title.runs[0].text,
+        url: 'https://www.youtube.com/watch?v=' + video.videoId,
+        channel: video.ownerText?.runs[0]?.text || 'Unknown',
+        duration: video.lengthText?.simpleText || 'Live/Unknown',
+        thumbnail: video.thumbnail?.thumbnails?.pop()?.url || '',
+      });
+    }
+
+    if (results.length === 0) throw new Error('No results found');
+
+    res.json({ status: 'success', results, creator: 'Gabimaru' });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch YouTube results',
+      creator: 'Gabimaru'
+    });
+  }
+});
+
 app.get('/iplookup', async (req, res) => {
   const ip = req.query.ip;
   if (!ip) {
