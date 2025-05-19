@@ -12,6 +12,50 @@ app.get('/', (req, res) => {
   res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse=John 3:16 - Get a Bible scripture</p><p>/iplookup?ip=8.8.8.8 - Get ip info through an ip address');
 });
 
+app.get('/waifu', async (req, res) => {
+  try {
+    constsync (req, res) => {
+  try {
+    const response = await axios.get('https://waifu.pics/api/sfw/waifu');
+    const imageUrl = response.data.url;
+
+    res.json({
+      status: 'success',
+      category: 'waifu',
+      url: imageUrl,
+      creator: 'Gabimaru'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch waifu image',
+      creator: 'Gabimaru'
+    });
+  }
+});
+
+app.get('/nsfw', async (req, res) => {
+  try {
+    constsync (req, res) => {
+  try {
+    const response = await axios.get('https://waifu.pics/api/nsfw/waifu');
+    const imageUrl = response.data.url;
+
+    res.json({
+      status: 'success',
+      category: 'nsfw',
+      url: imageUrl,
+      creator: 'Gabimaru'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch nsfw image',
+      creator: 'Gabimaru'
+    });
+  }
+});
+
 app.get('/ytsearch', async (req, res) => {
   const query = req.query.q;
   if (!query) return res.status(400).json({ status: 'error', message: 'Query is required', creator: 'Gabimaru' });
