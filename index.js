@@ -13,7 +13,60 @@ app.get('/', (req, res) => {
   res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse=John 3:16 - Get a Bible scripture</p><p>/iplookup?ip=8.8.8.8 - Get ip info through an ip address');
 });
 
-app.get('/ssweb', async (req, res) => {
+app.get('/api/animechar', async (req, res) => {
+  const name = req.query.name;
+  if (!name) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Missing ?name= parameter',
+      creator: 'Gabimaru'
+    });
+  }
+
+  try {
+    // Search for the character
+    const searchResponse = await axios.get(`https://api.jikan.moe/v4/characters`, {
+      params: { q: name }
+    });
+
+    const results = searchResponse.data.data;
+    if (!results || results.length === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Character not found',
+        creator: 'Gabimaru'
+      });
+    }
+
+    const character = results[0];
+
+    // Fetch character details
+    const detailsResponse = await axios.get(`https://api.jikan.moe/v4/characters/${character.mal_id}/full`);
+    const details = detailsResponse.data.data;
+
+    // Extract anime information
+    const anime = details.anime?.[0]?.anime?.title || 'Unknown';
+
+    res.json({
+      name: details.name,
+      anime: anime,
+      description: details.about,
+      image: details.images.jpg.image_url,
+      source: details.url,
+      status: 'success',
+      creator: 'Gabimaru'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch character information',
+      error: error.message,
+      creator: 'Gabimaru'
+    });
+  }
+});
+
+app.get('/api/ssweb', async (req, res) => {
   const targetUrl = req.query.url;
   if (!targetUrl) {
     return res.status(400).json({
@@ -47,7 +100,7 @@ app.get('/ssweb', async (req, res) => {
   }
 });
 
-app.get('/ytdl', async (req, res) => {
+app.get('/api/ytdl', async (req, res) => {
   const videoUrl = req.query.link;
   if (!videoUrl) {
     return res.status(400).json({
