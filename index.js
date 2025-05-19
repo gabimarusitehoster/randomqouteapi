@@ -49,8 +49,6 @@ app.get('/chatbot', async (req, res) => {
 
 app.get('/waifu', async (req, res) => {
   try {
-    constsync (req, res) => {
-  try {
     const response = await axios.get('https://waifu.pics/api/sfw/waifu');
     const imageUrl = response.data.url;
 
@@ -70,8 +68,6 @@ app.get('/waifu', async (req, res) => {
 });
 
 app.get('/nsfw', async (req, res) => {
-  try {
-    constsync (req, res) => {
   try {
     const response = await axios.get('https://waifu.pics/api/nsfw/waifu');
     const imageUrl = response.data.url;
