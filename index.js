@@ -13,35 +13,33 @@ app.get('/', (req, res) => {
 });
 
 app.get('/chatbot', async (req, res) => {
-  const message = req.query.message;
-  if (!message) {
+  const question = req.query.ask;
+  if (!question) {
     return res.status(400).json({
       status: 'error',
-      message: 'Please provide a message query parameter.'
+      message: 'Missing question parameter. Use ?ask=your-question',
+      creator: 'Gabimaru'
     });
   }
 
   try {
-    const response = await axios.get('https://www.simsimi.com/getRealtimeReq', {
-      params: {
-        lc: 'en',
-        ft: '1',
-        normalProb: '0.0',
-        reqText: message
-      }
-    });
+    const { data } = await axios.get(`https://you.com/search?q=${encodeURIComponent(question)}&fromSearchBar=true&chatMode=assistant`);
+    const $ = cheerio.load(data);
+    const scriptTag = $('script#__NEXT_DATA__').html();
 
-    const botReply = response.data.sentenceResp || 'No reply received.';
+    const parsed = JSON.parse(scriptTag);
+    const reply = parsed?.props?.pageProps?.chat?.segments?.[1]?.text || 'No response received';
 
     res.json({
       status: 'success',
-      reply: botReply,
+      question,
+      reply,
       creator: 'Gabimaru'
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch chatbot response',
+      message: 'Failed to fetch response',
       creator: 'Gabimaru'
     });
   }
