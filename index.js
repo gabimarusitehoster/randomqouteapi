@@ -13,6 +13,41 @@ app.get('/', (req, res) => {
   res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse=John 3:16 - Get a Bible scripture</p><p>/iplookup?ip=8.8.8.8 - Get ip info through an ip address');
 });
 
+app.get('/ssweb', async (req, res) => {
+  const url = req.query.url;
+  if (!url) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Missing ?url parameter',
+      creator: 'Gabimaru'
+    });
+  }
+
+  try {
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: puppeteer.executablePath()
+    });
+
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    const screenshot = await page.screenshot({ type: 'png' });
+
+    await browser.close();
+
+    res.set('Content-Type', 'image/png');
+    res.send(screenshot);
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to capture screenshot',
+      error: error.message,
+      creator: 'Gabimaru'
+    });
+  }
+});
+
 app.get('/api/animechar', async (req, res) => {
   const name = req.query.name;
   if (!name) {
