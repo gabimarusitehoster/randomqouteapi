@@ -101,41 +101,7 @@ app.get('/api/animechar', async (req, res) => {
   }
 });
 
-app.get('/api/ssweb', async (req, res) => {
-  const targetUrl = req.query.url;
-  if (!targetUrl) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Missing ?url= parameter',
-      creator: 'Gabimaru'
-    });
-  }
-
-  try {
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 0 });
-
-    const screenshot = await page.screenshot({ type: 'png', fullPage: true });
-
-    await browser.close();
-
-    res.set('Content-Type', 'image/png');
-    return res.send(screenshot);
-  } catch (error) {
-    return res.status(500).json({
-      status: 'error',
-      message: 'Failed to capture screenshot',
-      error: error.message,
-      creator: 'Gabimaru'
-    });
-  }
-});
-
-app.get('/api/ytdl', async (req, res) => {
+app.get('/ytdl', async (req, res) => {
   const videoUrl = req.query.link;
   if (!videoUrl) {
     return res.status(400).json({
@@ -222,6 +188,55 @@ app.get('/api/ytdl', async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: error.message || 'Failed to fetch video information',
+      creator: 'Gabimaru'
+    });
+  }
+});
+
+app.get('/ttsearch', async (req, res) => {
+  const query = req.query.query;
+  if (!query) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Missing query parameter',
+      creator: 'Gabimaru'
+    });
+  }
+
+  try {
+    const searchURL = `https://www.tiktok.com/search?q=${encodeURIComponent(query)}`;
+    const { data } = await axios.get(searchURL, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0'
+      }
+    });
+
+    const $ = cheerio.load(data);
+    const results = [];
+
+    $('a[href*="/video/"]').each((i, el) => {
+      const link = $(el).attr('href');
+      const desc = $(el).text().trim();
+      if (link && desc) {
+        results.push({
+          title: desc,
+          url: link.startsWith('http') ? link : `https://www.tiktok.com${link}`
+        });
+      }
+    });
+
+    res.json({
+      status: 'success',
+      query,
+      results: results.slice(0, 10),
+      creator: 'Gabimaru'
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch TikTok results',
+      error: error.message,
       creator: 'Gabimaru'
     });
   }
