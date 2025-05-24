@@ -10,7 +10,157 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('API by Gabimaru is live!<p>/quote - Get a random quote </p><p>/bibleverse?verse=John 3:16 - Get a Bible scripture</p><p>/iplookup?ip=8.8.8.8 - Get ip info through an ip address');
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  
+  res.send(`
+    <html>
+      <head>
+        <title>Gabimaru API Hub</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: white;
+          }
+          header {
+            background: #d32f2f;
+            padding: 2rem;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+          }
+          .container {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+          }
+          .card {
+            background: #1c1c1c;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(255,0,0,0.2);
+            transition: transform 0.3s ease;
+          }
+          .card:hover {
+            transform: translateY(-5px);
+          }
+          .endpoint {
+            font-size: 1.1rem;
+            color: #ff5252;
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+          }
+          .desc {
+            color: #ccc;
+            margin-bottom: 0.75rem;
+          }
+          pre {
+            background: #111;
+            padding: 0.75rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: #fff;
+          }
+          button {
+            padding: 0.5rem 1rem;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+          }
+          button:hover {
+            background: #b71c1c;
+          }
+        </style>
+      </head>
+      <body>
+        <header>Gabimaru's API Hub</header>
+        <div class="container">
+
+          ${[
+            {
+              path: "/ssweb?url=https://example.com",
+              description: "Takes screenshot of any webpage.",
+              example: "Image response (screenshot)."
+            },
+            {
+              path: "/api/animechar?name=naruto",
+              description: "Get detailed anime character info.",
+              example: `{
+  "name": "Naruto Uzumaki",
+  "anime": "Naruto",
+  "description": "...",
+  "image": "https://...",
+  "source": "https://..."
+}`
+            },
+            {
+              path: "/ytdl?link=https://youtu.be/dQw4w9WgXcQ",
+              description: "Download YouTube video & audio.",
+              example: `{
+  "title": "Rick Astley - Never Gonna Give You Up",
+  "thumbnail": "...",
+  "video": "...",
+  "audio": "..."
+}`
+            },
+            {
+              path: "/ttsearch?query=funny cats",
+              description: "Search TikTok videos.",
+              example: `{
+  "results": [
+    {
+      "title": "Funny cat 1",
+      "url": "https://tiktok.com/..."
+    }
+  ]
+}`
+            },
+            {
+              path: "/chatbot?ask=What is AI?",
+              description: "Ask a chatbot any question.",
+              example: `{
+  "question": "What is AI?",
+  "reply": "AI stands for Artificial Intelligence..."
+}`
+            },
+            {
+              path: "/waifu",
+              description: "Get a random safe-for-work waifu.",
+              example: `{
+  "url": "https://waifu.pics/..."
+}`
+            },
+            {
+              path: "/nsfw",
+              description: "NSFW random waifu (18+).",
+              example: `{
+  "url": "https://waifu.pics/..."
+}`
+            }
+          ].map(e => `
+            <div class="card">
+              <div class="endpoint"><code>${baseUrl}${e.path}</code></div>
+              <div class="desc">${e.description}</div>
+              <pre>${e.example}</pre>
+              <form action="${e.path}" method="GET" target="_blank">
+                <button type="submit">Test API</button>
+              </form>
+            </div>
+          `).join('')}
+
+        </div>
+      </body>
+    </html>
+  `);
 });
 
 app.get('/ssweb', async (req, res) => {
@@ -243,34 +393,46 @@ app.get('/ttsearch', async (req, res) => {
 });
 
 app.get('/chatbot', async (req, res) => {
-  const question = req.query.ask;
-  if (!question) {
+  const userMessage = req.query.ask;
+
+  if (!userMessage) {
     return res.status(400).json({
       status: 'error',
-      message: 'Missing question parameter. Use ?ask=your-question',
-      creator: 'Gabimaru'
+      creator: 'Ayodele David (Gabimaru)',
+      error: 'Missing "ask" query parameter.'
     });
   }
 
   try {
-    const { data } = await axios.get(`https://you.com/search?q=${encodeURIComponent(question)}&fromSearchBar=true&chatMode=assistant`);
-    const $ = cheerio.load(data);
-    const scriptTag = $('script#__NEXT_DATA__').html();
-
-    const parsed = JSON.parse(scriptTag);
-    const reply = parsed?.props?.pageProps?.chat?.segments?.[1]?.text || 'No response received';
-
-    res.json({
-      status: 'success',
-      question,
-      reply,
-      creator: 'Gabimaru'
+    const response = await axios.get(`https://botfather.cloud/Apis/AI/client.php`, {
+      params: { message: userMessage }
     });
+
+    const { data } = response;
+
+    if (data.success) {
+      res.json({
+        status: 'success',
+        creator: 'Ayodele David (Gabimaru)',
+        question: userMessage,
+        reply: data.response,
+        answer_time: data.answer_time
+      });
+    } else {
+      res.status(500).json({
+        status: 'error',
+        creator: 'Ayodele David (Gabimaru)',
+        error: 'AI API returned failure',
+        data
+      });
+    }
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to fetch response',
-      creator: 'Gabimaru'
+      creator: 'Ayodele David (Gabimaru)',
+      error: 'Failed to connect to AI API.'
     });
   }
 });
@@ -453,7 +615,7 @@ app.get('/quote', async (req, res) => {
 
 // Prevent Render sleep
 setInterval(() => {
-  axios.get('https://randomqouteapi-1.onrender.com').catch(() => {});
+  axios.get('https://gabimaru-restapi.onrender.com').catch(() => {});
 }, 300000); // every 5 mins
 
 app.listen(PORT, () => {
