@@ -213,7 +213,7 @@ app.get('/quote', async (req, res) => {
   
 // Prevent Render sleep  
 setInterval(() => {  
-  axios.get('https://gabimaru-restapi.onrender.com').catch(() => {});  
+  axios.get('https://ayokunle-restapi.onrender.com').catch(() => {});  
 }, 300000); // every 5 mins  
   
 app.listen(PORT, () => {  
