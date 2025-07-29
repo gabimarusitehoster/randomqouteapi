@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gabimaru API Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: linear-gradient(to bottom, #0a0a0a, #141414);
+      color: #f0f0f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: rgba(255, 0, 102, 0.08);
+      padding: 3rem 1rem;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #ff0066;
+      text-shadow: 0 0 8px rgba(255, 0, 102, 0.4);
+      border-bottom: 1px solid rgba(255, 0, 102, 0.1);
+    }
+
+    .container {
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.8rem;
+      box-shadow: 0 0 25px rgba(255, 0, 102, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 30px rgba(255, 0, 102, 0.2);
+    }
+
+    .endpoint {
+      font-size: 1rem;
+      color: #ff0066;
+      margin-bottom: 0.75rem;
+      word-break: break-word;
+      font-weight: 600;
+    }
+
+    .desc {
+      color: #ccc;
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+    }
+
+    pre {
+      background: #111;
+      padding: 1rem;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      color: #eaeaea;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      background: #ff0066;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 0.8rem;
+      transition: background 0.3s, transform 0.2s ease;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    button:hover {
+      background: #e6005c;
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 600px) {
+      header {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>Gabimaru’s API Hub</header>
+
+  <div class="container" id="api-cards">
+    <!-- API Cards will render here -->
+  </div>
+
+  <script>
+    const baseUrl = '';
+
+    const endpoints = [
+      {
+        path: "/api/animechar?name=naruto",
+        description: "Get detailed anime character info.",
+        example: `{
+  "name": "Naruto Uzumaki",
+  "anime": "Naruto",
+  "description": "...",
+  "image": "https://...",
+  "source": "https://..."
+}`
+      },
+      {
+        path: "/chatbot?ask=What is AI?",
+        description: "Ask a question to the chatbot.",
+        example: `{
+  "question": "What is AI?",
+  "reply": "AI stands for Artificial Intelligence..."
+}`
+      },
+      {
+        path: "/waifu",
+        description: "Get a random safe-for-work waifu image.",
+        example: `{
+  "url": "https://waifu/..."
+}`
+      },
+      {
+        path: "/nsfw",
+        description: "NSFW random waifu (18+).",
+        example: `{
+  "url": "https://waifu.pics/..."
+}`
+      }
+    ];
+
+    const container = document.getElementById("api-cards");
+
+    endpoints.forEach(ep => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class="endpoint"><code>${location.origin}${e.path}</code></div>
+        <div class="desc">${ep.description}</div>
+        <pre>${ep.example}</pre>
+        <form action="${ep.path}" method="GET" target="_blank">
+          <button type="submit">🔗 Test API</button>
+        </form>
+      `;
+
+      container.appendChild(card);
+    });
+  </script>
+</body>
+</html>
