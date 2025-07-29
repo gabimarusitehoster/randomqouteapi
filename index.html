@@ -113,61 +113,68 @@
   </div>
 
   <script>
-    const baseUrl = '';
+  const baseUrl = 'https://ayokunle-restapi.onrender.com';
 
-    const endpoints = [
-      {
-        path: "/api/animechar?name=naruto",
-        description: "Get detailed anime character info.",
-        example: `{
+  const endpoints = [
+    {
+      path: "/api/animechar?name=naruto",
+      description: "Get detailed anime character info.",
+      example: `{
   "name": "Naruto Uzumaki",
   "anime": "Naruto",
   "description": "...",
   "image": "https://...",
   "source": "https://..."
 }`
-      },
-      {
-        path: "/chatbot?ask=What is AI?",
-        description: "Ask a question to the chatbot.",
-        example: `{
+    },
+    {
+      path: "/chatbot?ask=What is AI?",
+      description: "Ask a question to the chatbot.",
+      example: `{
   "question": "What is AI?",
   "reply": "AI stands for Artificial Intelligence..."
 }`
-      },
-      {
-        path: "/waifu",
-        description: "Get a random safe-for-work waifu image.",
-        example: `{
+    },
+    {
+      path: "/waifu",
+      description: "Get a random safe-for-work waifu image.",
+      example: `{
   "url": "https://waifu/..."
 }`
-      },
-      {
-        path: "/nsfw",
-        description: "NSFW random waifu (18+).",
-        example: `{
+    },
+    {
+      path: "/bibleverse",
+      description: "Get a bible verse.",
+      example: `{
+  "url": "https://.../bibleverse?verse=john 3:16"
+}`
+    },
+    {
+      path: "/nsfw",
+      description: "NSFW random waifu (18+).",
+      example: `{
   "url": "https://waifu.pics/..."
 }`
-      }
-    ];
+    }
+  ];
 
-    const container = document.getElementById("api-cards");
+  const container = document.getElementById("api-cards");
 
-    endpoints.forEach(ep => {
-      const card = document.createElement("div");
-      card.className = "card";
+  endpoints.forEach(ep => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-      card.innerHTML = `
-        <div class="endpoint"><code>${location.origin}${e.path}</code></div>
-        <div class="desc">${ep.description}</div>
-        <pre>${ep.example}</pre>
-        <form action="${ep.path}" method="GET" target="_blank">
-          <button type="submit">🔗 Test API</button>
-        </form>
-      `;
+    card.innerHTML = `
+      <div class="endpoint"><code>${baseUrl}${ep.path}</code></div>
+      <div class="desc">${ep.description}</div>
+      <pre>${ep.example}</pre>
+      <form action="${baseUrl}${ep.path}" method="GET" target="_blank">
+        <button type="submit">🔗 Test API</button>
+      </form>
+    `;
 
-      container.appendChild(card);
-    });
-  </script>
+    container.appendChild(card);
+  });
+</script>
 </body>
 </html>
